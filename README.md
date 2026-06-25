@@ -1,36 +1,90 @@
-# Shallow Water Model on a Yin–Yang Grid (McCormack Scheme)
-# This repository contains the source code accompanying a manuscript currently under peer review.
+# Shallow Water Equations on a Yin–Yang Grid: Strategy 2
+
+This repository contains the implementation of Strategy 2 for the numerical solution of the shallow water equations (SWEs) on a Yin–Yang overset grid.
+
+The solver combines a fourth-order compact MacCormack scheme for spatial discretization with the classical fourth-order Runge–Kutta (RK4) method for time integration. Strategy II represents an enhanced grid-coupling approach designed to improve stability and consistency across Yin–Yang interfaces.
+
+---
+
 ## Overview
 
-This repository contains a Fortran 90 implementation of a numerical model for solving the shallow water equations on a Yin–Yang grid. The model employs a fourth-order compact McCormack scheme combined with a stability enhancement strategy based on overlapping subdomains and inter-subdomain prognostic data and their derivatives transfer.
+The Yin–Yang grid provides an efficient overset-grid framework for spherical computations while avoiding coordinate singularities associated with conventional latitude–longitude grids. However, high-order numerical methods on overlapping grids may experience stability issues near interpolation interfaces.
 
-The implementation is designed for idealized global atmospheric dynamics experiments.
+Strategy II addresses these challenges through enhanced overlap regions and additional information transfer between the Yin and Yang subgrids during each time-integration stage.
 
 ---
 
 ## Numerical Method
 
-- Governing equations: Shallow Water Equations (SWE)
-- Spherical geometry: Yin-Yang grid
-- Spatial discretization: Fourth-order MacCormack (4/2) scheme
-- Time integration: Fourth-order Runge Kutta scheme
-- Stability strategy: Overlapping subdomain coupling with inter-subdomain prognostic variables and derivatives exchange (Strategy 2)
+* Governing equations: Shallow Water Equations (SWEs)
+* Grid topology: Yin–Yang overset grid
+* Spatial discretization: Fourth-order compact MacCormack scheme
+* Time integration: Fourth-order Runge–Kutta (RK4)
+* Inter-grid communication through high-order interpolation
 
 ---
 
-## Test Cases
+## Strategy II
 
-The model includes two standard benchmark test cases:
+Strategy II introduces two stabilization mechanisms within the standard Yin–Yang solution framework.
 
-### 1. Rossby–Haurwitz Wave
-A classical test for evaluating the model's ability to maintain large-scale wave structures on the sphere.
+### Enhanced Overlap Region
 
-### 2. Midlatitude Unstable Tropospheric Jet 
-An unstable tropospheric jet test case based on Gallewsky et al. (2004), used to evaluate the model's ability to capture dynamically unstable flow evolution.
-## Requirements
+The overlap between the Yin and Yang component grids is enlarged in order to improve information exchange and reduce numerical inconsistencies near grid interfaces.
 
-- Fortran compiler (gfortran recommended)
-- GNU Make
-- Tecplot (for visualization of output files)
+### Prognostic Variable and Derivative Transfer
+
+At every Runge–Kutta stage:
+
+1. Prognostic variables are exchanged between the Yin and Yang grids within the overlap region.
+2. Updated values from the Yin grid are transferred to the overlapping region of the Yang grid.
+3. Spatial derivatives are computed on both component grids using their local solution fields.
+4. For Yang-grid boundary points located near the overset interface, derivative information is obtained from the Yin grid through interpolation.
+
+This procedure improves consistency between the two subgrids while maintaining derivative evaluations on both Yin and Yang component grids.
 
 ---
+
+## Validation
+
+The implementation is validated using two classical benchmark test cases for the shallow water equations on the sphere.
+
+These benchmark problems are used to assess:
+
+* Numerical accuracy
+* Stability characteristics
+* Conservation properties
+* Effectiveness of the Strategy II stabilization procedure
+
+---
+
+## Relation to Other Strategies
+
+This repository contains only the implementation of Strategy 2.
+
+Implementations of Strategy 1 and Strategy 3 are provided in separate repositories. A detailed comparison of the three strategies, including their advantages and limitations, is presented in the associated publication.
+
+---
+
+## Repository Structure
+
+```text
+.
+├── src/          # Source code
+├── grid/         # Yin–Yang grid and interpolation routines
+├── tests/        # Benchmark test cases
+├── results/      # Numerical results and visualizations
+└── README.md
+```
+
+---
+
+## Citation
+
+If you use this code in your research, please cite the associated publication describing the proposed stabilization strategies and their comparative evaluation.
+
+---
+
+## License
+
+See the LICENSE file for licensing information.
